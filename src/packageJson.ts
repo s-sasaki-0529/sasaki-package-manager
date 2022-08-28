@@ -5,21 +5,12 @@ export async function findPackageJsonPath() {
   return findUp('package.json')
 }
 
-export async function parsePackageJson(path: string): Promise<PackageJson> {
-  return new Promise(resolve => {
-    readFile(path)
-      .then(data => {
-        const json = JSON.parse(data.toString())
-        resolve({
-          dependencies: json.dependencies,
-          devDependencies: json.devDependencies
-        })
-      })
-      .catch(() => {
-        resolve({
-          dependencies: {},
-          devDependencies: {}
-        })
-      })
+export async function parsePackageJson(path: string): Promise<PackageDependencyMap> {
+  return readFile(path).then(data => {
+    const json = JSON.parse(data.toString())
+    return Promise.resolve({
+      dependencies: json.dependencies,
+      devDependencies: json.devDependencies
+    })
   })
 }

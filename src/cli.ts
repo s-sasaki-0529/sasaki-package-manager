@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { install } from './tinyPm.js'
 
 const program = new Command()
 
@@ -7,7 +8,10 @@ program
   .argument('[packageNames...]')
   .action(packageNames => {
     const options = program.opts()
-    console.log({ command: 'install', packageNames, options })
+    install(packageNames, {
+      saveDev: !!options.saveDev,
+      production: !!options.production
+    })
   })
 
 program

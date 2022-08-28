@@ -11,12 +11,14 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
   return manifest
 }
 
-export async function savePackageTarball(manifest: NpmManifest, version?: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+export async function savePackageTarball(name: PackageName, version?: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+  const manifest = await fetchPackageManifest(name)
   version ||= manifest['dist-tags'].latest
-  const tarballUrl = manifest.versions[version].dist.tarball
+
   const path = `${dir}/${manifest.name}`
   mkdir(path, { recursive: true })
 
+  const tarballUrl = manifest.versions[version].dist.tarball
   const tarResponse = await fetch(tarballUrl)
   return tarResponse.body?.pipe(tar.extract({ cwd: path, strip: 1 }))
 }

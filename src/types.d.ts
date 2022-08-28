@@ -5,7 +5,7 @@ type DependenciesMap = {
   [name: PackageName]: Version
 }
 
-type PackageJson = {
+type PackageDependencyMap = {
   dependencies: DependenciesMap
   devDependencies: DependenciesMap
 }
