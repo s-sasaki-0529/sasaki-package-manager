@@ -11,7 +11,8 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
   return manifest
 }
 
-export async function savePackageTarball(manifest: NpmManifest, version: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+export async function savePackageTarball(manifest: NpmManifest, version?: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+  version ||= manifest['dist-tags'].latest
   const tarballUrl = manifest.versions[version].dist.tarball
   const path = `${dir}/${manifest.name}`
   mkdir(path, { recursive: true })
