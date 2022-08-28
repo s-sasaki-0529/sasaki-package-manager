@@ -28,6 +28,7 @@
     "arrowParens": "avoid"
   },
   "dependencies": {
-    "commander": "^9.4.0"
+    "commander": "^9.4.0",
+    "find-up": "^6.3.0"
   }
 }
