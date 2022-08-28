@@ -1,6 +1,7 @@
 {
   "name": "@s-sasaki-0529/tiny-package-manager",
   "version": "0.0.1",
+  "type": "module",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
