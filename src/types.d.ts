@@ -20,3 +20,19 @@ type LockFile = {
     }
   }
 }
+
+type NpmManifest = {
+  name: PackageName
+  'dist-tags': {
+    latest: Version
+  }
+  versions: {
+    [version: Version]: {
+      dist: {
+        tarball: string
+        shasum: string
+      }
+      dependencies: DependenciesMap
+    }
+  }
+}
