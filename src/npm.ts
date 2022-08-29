@@ -12,12 +12,12 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
   return manifest
 }
 
-export async function savePackageTarball(name: PackageName, vc?: VersionConstraint, dir = DEFAULT_DOWNLOAD_DIR) {
+export async function savePackageTarball(name: PackageName, vc: VersionConstraint = '*') {
   const manifest = await fetchPackageManifest(name)
   const versions = Object.keys(manifest.versions)
-  const version: Version = vc ? semver.maxSatisfying(versions, vc) : manifest['dist-tags'].latest
+  const version = semver.maxSatisfying(versions, vc)
 
-  const path = `${dir}/${manifest.name}`
+  const path = `${DEFAULT_DOWNLOAD_DIR}/${manifest.name}`
   mkdir(path, { recursive: true })
 
   const tarballUrl = manifest.versions[version].dist.tarball
