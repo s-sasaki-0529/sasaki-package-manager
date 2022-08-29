@@ -24,9 +24,7 @@ type LockFile = {
     version: Version
     url: string
     shasum: string
-    dependencies: {
-      [name: PackageName]: VersionConstraint
-    }
+    dependencies: DependenciesMap
   }
 }
 
