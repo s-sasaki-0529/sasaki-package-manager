@@ -1,5 +1,6 @@
 import { mkdir } from 'fs/promises'
 import fetch from 'node-fetch'
+import * as semver from 'semver'
 import * as tar from 'tar'
 
 const REPOSITORY_URL = 'https://registry.npmjs.org'
@@ -11,9 +12,10 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
   return manifest
 }
 
-export async function savePackageTarball(name: PackageName, version?: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+export async function savePackageTarball(name: PackageName, vc?: VersionConstraint, dir = DEFAULT_DOWNLOAD_DIR) {
   const manifest = await fetchPackageManifest(name)
-  version ||= manifest['dist-tags'].latest
+  const versions = Object.keys(manifest.versions)
+  const version: Version = vc ? semver.maxSatisfying(versions, vc) : manifest['dist-tags'].latest
 
   const path = `${dir}/${manifest.name}`
   mkdir(path, { recursive: true })

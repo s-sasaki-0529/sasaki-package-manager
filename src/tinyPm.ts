@@ -40,13 +40,13 @@ export async function install(packageNames: PackageName[], option: InstallOption
   const installPromises = []
   installPromises.push(
     Object.keys(dependencyMap.dependencies).map(packageName => {
-      return savePackageTarball(packageName, '') // TODO: latest でなく指定されたバージョンを使う
+      return savePackageTarball(packageName, dependencyMap.dependencies[packageName])
     })
   )
   if (!option.production) {
     installPromises.push(
       Object.keys(dependencyMap.devDependencies).map(packageName => {
-        return savePackageTarball(packageName, '') // TODO: latest でなく指定されたバージョンを使う
+        return savePackageTarball(packageName, dependencyMap.devDependencies[packageName])
       })
     )
   }
