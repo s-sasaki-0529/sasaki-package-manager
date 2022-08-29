@@ -2,6 +2,7 @@ import { mkdir } from 'fs/promises'
 import fetch from 'node-fetch'
 import * as semver from 'semver'
 import * as tar from 'tar'
+import { resolveLog } from './logger.js'
 
 const REPOSITORY_URL = 'https://registry.npmjs.org'
 const DEFAULT_DOWNLOAD_DIR = `${process.cwd()}/node_modules`
@@ -22,5 +23,7 @@ export async function savePackageTarball(name: PackageName, vc: VersionConstrain
 
   const tarballUrl = manifest.versions[version].dist.tarball
   const tarResponse = await fetch(tarballUrl)
-  return tarResponse.body?.pipe(tar.extract({ cwd: path, strip: 1 }))
+  tarResponse.body?.pipe(tar.extract({ cwd: path, strip: 1 }))
+
+  resolveLog(name, vc, version)
 }
