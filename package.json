@@ -4,7 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^18.7.13",
-    "@types/semver": "^7.3.12",
+    "@types/semver": "^5.5.0",
     "@types/tar": "^6.1.2",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
@@ -34,7 +34,7 @@
     "commander": "^9.4.0",
     "find-up": "^6.3.0",
     "node-fetch": "^3.2.10",
-    "semver": "^7.3.7",
+    "semver": "^5.5.0",
     "tar": "^6.1.11"
   }
 }
