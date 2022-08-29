@@ -11,7 +11,7 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
   return manifest
 }
 
-export async function savePackageTarball(name: PackageName, version?: Version, dir = DEFAULT_DOWNLOAD_DIR) {
+export async function savePackageTarball(name: PackageName, version?: VersionConstraint, dir = DEFAULT_DOWNLOAD_DIR) {
   const manifest = await fetchPackageManifest(name)
   version ||= manifest['dist-tags'].latest
 
