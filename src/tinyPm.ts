@@ -24,9 +24,9 @@ export async function install(packageNames: PackageName[], option: InstallOption
   // 追加インストールするパッケージを dependencies または devDependencies に追加する
   packageNames.forEach(packageName => {
     if (option.saveDev) {
-      dependencyMap.devDependencies[packageName] = ''
+      dependencyMap.devDependencies[packageName] = '*'
     } else {
-      dependencyMap.dependencies[packageName] = ''
+      dependencyMap.dependencies[packageName] = '*'
     }
   })
 
