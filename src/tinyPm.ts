@@ -1,5 +1,6 @@
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson } from './packageJson.js'
+import { collectDepsPackageList } from './resolver.js'
 
 type InstallOption = {
   saveDev?: boolean
@@ -30,25 +31,24 @@ export async function install(packageNames: PackageName[], option: InstallOption
     }
   })
 
-  // production の指定がある場合は devDependencies のインストールを省略する
   if (option.production) {
     dependencyMap.devDependencies = {}
   }
 
+  // パッケージ一覧それぞれが依存する下位パッケージのバージョンも洗い出して、
+  // 最終的なパッケージ一覧を生成する
+  const topLevelDependenciesMap: DependenciesMap = { ...dependencyMap.dependencies, ...dependencyMap.devDependencies }
+  const fullDependenciesMap: DependenciesMap = { ...topLevelDependenciesMap }
+  for (const [name, VersionConstraint] of Object.entries(topLevelDependenciesMap)) {
+    await collectDepsPackageList(name, VersionConstraint, fullDependenciesMap)
+  }
+
   // npm リポジトリから各パッケージのインストールを行う
-  // devDependencies については production オプションがある場合は省略
   const installPromises = []
   installPromises.push(
-    Object.keys(dependencyMap.dependencies).map(packageName => {
-      return savePackageTarball(packageName, dependencyMap.dependencies[packageName])
+    Object.keys(fullDependenciesMap).map(packageName => {
+      return savePackageTarball(packageName, fullDependenciesMap[packageName])
     })
   )
-  if (!option.production) {
-    installPromises.push(
-      Object.keys(dependencyMap.devDependencies).map(packageName => {
-        return savePackageTarball(packageName, dependencyMap.devDependencies[packageName])
-      })
-    )
-  }
   return Promise.all(installPromises)
 }
