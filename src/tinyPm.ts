@@ -1,4 +1,4 @@
-import { writeLockFile } from './lock.js'
+import { readLockFile, writeLockFile } from './lock.js'
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson } from './packageJson.js'
 import { collectDepsPackageList } from './resolver.js'
@@ -22,6 +22,9 @@ export async function install(packageNames: PackageName[], option: InstallOption
     dependencyMap.dependencies = packageJson.dependencies
     dependencyMap.devDependencies = packageJson.devDependencies
   }
+
+  // lock ファイルも読み込んでおく
+  await readLockFile()
 
   // 追加インストールするパッケージを dependencies または devDependencies に追加する
   packageNames.forEach(packageName => {
