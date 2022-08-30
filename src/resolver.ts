@@ -1,32 +1,46 @@
 import * as semver from 'semver'
-import { addLockFile } from './lock.js'
+import { addLockFile, readLockedPackageInfo } from './lock.js'
 import { resolveLog } from './logger.js'
 import { fetchPackageManifest } from './manifest.js'
+
+async function resolvePackage(packageName: PackageName, vc: VersionConstraint): Promise<LockedPackageInfo | null> {
+  // Lock ファイルに既に情報があればそれを利用する
+  const lockedPackageInfo = readLockedPackageInfo(packageName, vc)
+  if (lockedPackageInfo) return lockedPackageInfo
+
+  // Lock ファイルに情報がなければ、パッケージマニフェストから取得する
+  // TODO: ここで Lock ファイルの更新も必要？
+  const manifest = await fetchPackageManifest(packageName)
+  const version = semver.maxSatisfying(Object.keys(manifest.versions), vc)
+  if (!manifest.versions[version]) return null
+
+  resolveLog(packageName, vc, version)
+  return {
+    version,
+    url: manifest.versions[version].dist.tarball,
+    shasum: manifest.versions[version].dist.shasum,
+    dependencies: manifest.versions[version].dependencies || {}
+  }
+}
 
 export async function collectDepsPackageList(
   packageName: PackageName,
   vc: VersionConstraint,
   packageList: DependenciesMap
 ) {
-  // パッケージのマニフェストを取得する
-  const manifest = await fetchPackageManifest(packageName)
-
-  // バージョン制約から最新のバージョンを抜き出す
-  const version = semver.maxSatisfying(Object.keys(manifest.versions), vc)
-  if (!manifest.versions[version]) return packageList
+  // 解決後のパッケージ情報を取得する
+  const packageInfo = await resolvePackage(packageName, vc)
+  if (!packageInfo) return packageList
 
   // 解決結果を Lock ファイルに書き出す
-  addLockFile(packageName, vc, version)
+  addLockFile(packageName, vc, packageInfo.version)
 
   // インストールリストに自身を追加する
-  packageList[packageName] = version
-  resolveLog(packageName, vc, version)
+  packageList[packageName] = packageInfo.version
 
   // 依存するパッケージに対して再帰的に同様の操作を行う
-  if (manifest.versions[version].dependencies) {
-    for (const [depName, depVersion] of Object.entries(manifest.versions[version].dependencies)) {
-      packageList = await collectDepsPackageList(depName, depVersion, packageList)
-    }
+  for (const [depName, depVersion] of Object.entries(packageInfo.dependencies)) {
+    packageList = await collectDepsPackageList(depName, depVersion, packageList)
   }
 
   return packageList
