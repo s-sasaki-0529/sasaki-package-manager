@@ -32,6 +32,7 @@ export async function install(packageNames: PackageName[], option: InstallOption
     }
   })
 
+  // production only の場合はここで devDependencies を空にすることでインストールをスキップする
   if (option.production) {
     dependencyMap.devDependencies = {}
   }
