@@ -9,7 +9,7 @@ type Version = string // e.g. '1.0.0'
 
 // パッケージ名とバージョン制約のマップ
 type DependenciesMap = {
-  [name: PackageName]: VersionConstraint
+  [name: PackageName]: VersionConstraint | Version
 }
 
 // dependencies / devDependencies それぞれのマップ
@@ -18,14 +18,17 @@ type PackageDependencyMap = {
   devDependencies: DependenciesMap
 }
 
-// インストール済みパッケージ一覧のロックファイルの構成
+// 解決済みのパッケージ情報
+type LockedPackageInfo = {
+  version: Version
+  url: string
+  shasum: string
+  dependencies: DependenciesMap
+}
+
+// 解決済みパッケージ情報一覧(≒ tiny-pm.lock)
 type LockFile = {
-  [dependency: `${PackageName}@${VersionConstraint}`]: {
-    version: Version
-    url: string
-    shasum: string
-    dependencies: DependenciesMap
-  }
+  [dependency: `${PackageName}@${VersionConstraint}`]: LockedPackageInfo
 }
 
 // npm リポジトリから取得できるマニフェストの型(必要分のみ定義)
