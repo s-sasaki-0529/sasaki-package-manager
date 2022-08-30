@@ -6,6 +6,9 @@
     "moduleResolution": "Node",
     "strict": true,
     "resolveJsonModule": true,
-    "outDir": "./dist",
-  }
+    "outDir": "./dist"
+  },
+  "exclude": [
+    "dev/"
+  ]
 }
