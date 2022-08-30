@@ -49,13 +49,9 @@ export async function install(packageNames: PackageName[], option: InstallOption
   }
 
   // npm リポジトリから各パッケージのインストールを行う
-  const installPromises: Promise<void>[] = []
-  installPromises.push(
-    ...Object.keys(fullDependenciesMap).map(packageName => {
-      return savePackageTarball(packageName, fullDependenciesMap[packageName])
-    })
-  )
-  await Promise.all(installPromises)
+  for (const [name, version] of Object.entries(fullDependenciesMap)) {
+    await savePackageTarball(name, version)
+  }
 
   // lock ファイルを書き出す
   await writeLockFile()
