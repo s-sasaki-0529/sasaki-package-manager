@@ -1,4 +1,5 @@
 import * as semver from 'semver'
+import { addLockFile } from './lock.js'
 import { resolveLog } from './logger.js'
 import { fetchPackageManifest } from './manifest.js'
 
@@ -13,6 +14,9 @@ export async function collectDepsPackageList(
   // バージョン制約から最新のバージョンを抜き出す
   const version = semver.maxSatisfying(Object.keys(manifest.versions), vc)
   if (!manifest.versions[version]) return packageList
+
+  // 解決結果を Lock ファイルに書き出す
+  addLockFile(packageName, vc, version)
 
   // インストールリストに自身を追加する
   packageList[packageName] = version
