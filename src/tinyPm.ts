@@ -1,3 +1,4 @@
+import { writeLockFile } from './lock.js'
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson } from './packageJson.js'
 import { collectDepsPackageList } from './resolver.js'
@@ -44,11 +45,14 @@ export async function install(packageNames: PackageName[], option: InstallOption
   }
 
   // npm リポジトリから各パッケージのインストールを行う
-  const installPromises = []
+  const installPromises: Promise<void>[] = []
   installPromises.push(
-    Object.keys(fullDependenciesMap).map(packageName => {
+    ...Object.keys(fullDependenciesMap).map(packageName => {
       return savePackageTarball(packageName, fullDependenciesMap[packageName])
     })
   )
-  return Promise.all(installPromises)
+  await Promise.all(installPromises)
+
+  // lock ファイルを書き出す
+  await writeLockFile()
 }

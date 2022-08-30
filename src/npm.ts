@@ -2,6 +2,7 @@ import { mkdir } from 'fs/promises'
 import fetch from 'node-fetch'
 import * as semver from 'semver'
 import * as tar from 'tar'
+import { addLockFile } from './lock.js'
 import { installLog } from './logger.js'
 import { fetchPackageManifest } from './manifest.js'
 
@@ -19,5 +20,6 @@ export async function savePackageTarball(name: PackageName, vc: VersionConstrain
   const tarResponse = await fetch(tarballUrl)
   tarResponse.body?.pipe(tar.extract({ cwd: path, strip: 1 }))
 
+  addLockFile(name, vc, version)
   installLog(name, version)
 }
