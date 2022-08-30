@@ -2,16 +2,10 @@ import { mkdir } from 'fs/promises'
 import fetch from 'node-fetch'
 import * as semver from 'semver'
 import * as tar from 'tar'
-import { resolveLog } from './logger.js'
+import { installLog } from './logger.js'
+import { fetchPackageManifest } from './manifest.js'
 
-const REPOSITORY_URL = 'https://registry.npmjs.org'
 const DEFAULT_DOWNLOAD_DIR = `${process.cwd()}/node_modules`
-
-export async function fetchPackageManifest(name: PackageName): Promise<NpmManifest> {
-  const manifestUrl = `${REPOSITORY_URL}/${name}`
-  const manifest = (await fetch(manifestUrl).then(res => res.json())) as NpmManifest
-  return manifest
-}
 
 export async function savePackageTarball(name: PackageName, vc: VersionConstraint = '*') {
   const manifest = await fetchPackageManifest(name)
@@ -25,5 +19,5 @@ export async function savePackageTarball(name: PackageName, vc: VersionConstrain
   const tarResponse = await fetch(tarballUrl)
   tarResponse.body?.pipe(tar.extract({ cwd: path, strip: 1 }))
 
-  resolveLog(name, vc, version)
+  installLog(name, version)
 }
