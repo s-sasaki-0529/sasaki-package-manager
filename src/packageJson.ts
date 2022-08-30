@@ -9,8 +9,8 @@ export async function parsePackageJson(path: string): Promise<PackageDependencyM
   return readFile(path).then(data => {
     const json = JSON.parse(data.toString())
     return Promise.resolve({
-      dependencies: json.dependencies,
-      devDependencies: json.devDependencies
+      dependencies: json.dependencies || {},
+      devDependencies: json.devDependencies || {}
     })
   })
 }
