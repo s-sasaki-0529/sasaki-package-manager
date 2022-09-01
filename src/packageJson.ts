@@ -5,7 +5,9 @@ import { findUp } from 'find-up'
  * package.json を探索し、そのパスを返す
  */
 export async function findPackageJsonPath() {
-  return findUp('package.json')
+  const path = await findUp('package.json')
+  if (!path) throw new Error('package.json not found')
+  return path
 }
 
 /**
@@ -24,7 +26,7 @@ export async function parsePackageJson(path: string): Promise<PackageDependencyM
 /**
  * package.json を依存関係オブジェクトを用いて書き換える
  */
-export async function updatePackageJson(path: string, dependencyMap: PackageDependencyMap) {
+export async function writePackageJson(path: string, dependencyMap: PackageDependencyMap) {
   const data = await readFile(path)
   const currentJson = JSON.parse(data.toString())
   const newJson = {

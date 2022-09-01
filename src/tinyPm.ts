@@ -1,6 +1,6 @@
 import { readLockFile, writeLockFile } from './lock.js'
 import { savePackageTarball } from './npm.js'
-import { findPackageJsonPath, parsePackageJson } from './packageJson.js'
+import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
 import { collectDepsPackageList } from './resolver.js'
 
 type InstallOption = {
@@ -15,13 +15,13 @@ export async function install(packageNames: PackageName[], option: InstallOption
     devDependencies: {}
   }
 
-  // package.json を探索し、存在する場合はパッケージ依存関係を読み込む
+  // package.json のパスを確定する
   const packageJsonPath = await findPackageJsonPath()
-  if (packageJsonPath) {
-    const packageJson = await parsePackageJson(packageJsonPath)
-    dependencyMap.dependencies = packageJson.dependencies
-    dependencyMap.devDependencies = packageJson.devDependencies
-  }
+
+  // package.json の内容から依存関係を取得する
+  const packageJson = await parsePackageJson(packageJsonPath)
+  dependencyMap.dependencies = packageJson.dependencies
+  dependencyMap.devDependencies = packageJson.devDependencies
 
   // lock ファイルも読み込んでおく
   await readLockFile()
@@ -52,6 +52,9 @@ export async function install(packageNames: PackageName[], option: InstallOption
   for (const [name, version] of Object.entries(fullDependenciesMap)) {
     await savePackageTarball(name, version)
   }
+
+  // package.json を書き出す
+  await writePackageJson(packageJsonPath, dependencyMap)
 
   // lock ファイルを書き出す
   await writeLockFile()
