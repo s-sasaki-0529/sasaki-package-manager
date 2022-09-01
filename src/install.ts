@@ -47,15 +47,21 @@ export default async function install(packageNames: PackageName[], option: Insta
 
   // パッケージ一覧それぞれが依存する下位パッケージのバージョンも洗い出して、
   // 最終的なパッケージ一覧を生成する
-  const topLevelDependenciesMap: DependenciesMap = { ...dependencyMap.dependencies, ...dependencyMap.devDependencies }
-  const fullDependenciesMap: DependenciesMap = { ...topLevelDependenciesMap }
-  for (const [name, VersionConstraint] of Object.entries(topLevelDependenciesMap)) {
-    await collectDepsPackageList(name, VersionConstraint, fullDependenciesMap)
+  const rootDependenciesMap: DependenciesMap = { ...dependencyMap.dependencies, ...dependencyMap.devDependencies }
+  const topLevelPackageList: DependenciesMap = {}
+  const conflictedPackageList: ConflictedPackageInfo[] = []
+  for (const [name, constraint] of Object.entries(rootDependenciesMap)) {
+    await collectDepsPackageList(name, constraint, rootDependenciesMap, topLevelPackageList, conflictedPackageList, [])
   }
 
-  // npm リポジトリから各パッケージのインストールを行う
-  for (const [name, version] of Object.entries(fullDependenciesMap)) {
-    await savePackageTarball(name, version)
+  // node_modules 直下へのインストール
+  for (const name of Object.keys(topLevelPackageList)) {
+    await savePackageTarball(name, topLevelPackageList[name], `node_modules/${name}`)
+  }
+
+  // 依存パッケージ以下へのインストール
+  for (const { name, version, parent } of conflictedPackageList) {
+    await savePackageTarball(name, version, `node_modules/${parent}/node_modules/${name}`)
   }
 
   // package.json を書き出す

@@ -7,7 +7,7 @@ type VersionConstraint = string
 // バージョン(e.g. '1.0.0')
 type Version = string // e.g. '1.0.0'
 
-// パッケージ名とバージョン制約のマップ
+// 依存パッケージ名とバージョン制約のマップ
 type DependenciesMap = {
   [name: PackageName]: VersionConstraint | Version
 }
@@ -16,6 +16,12 @@ type DependenciesMap = {
 type PackageDependencyMap = {
   dependencies: DependenciesMap
   devDependencies: DependenciesMap
+}
+
+type ConflictedPackageInfo = {
+  name: PackageName
+  version: Version
+  parent: PackageName
 }
 
 // 解決済みのパッケージ情報
