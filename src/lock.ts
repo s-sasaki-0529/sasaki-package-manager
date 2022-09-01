@@ -36,7 +36,7 @@ export async function writeLockFile() {
 export async function addLockFile(packageName: PackageName, vc: VersionConstraint, version: Version) {
   const manifest = await fetchPackageManifest(packageName)
   const info = manifest.versions[version]
-  const packageInfo: LockedPackageInfo = {
+  const packageInfo: ResolvedPackageInfo = {
     version,
     url: info.dist.tarball,
     shasum: info.dist.shasum,
@@ -49,7 +49,7 @@ export async function addLockFile(packageName: PackageName, vc: VersionConstrain
 /**
  * メモリ上の LockFile からパッケージ情報を取得する
  */
-export function readLockedPackageInfo(name: PackageName, vc: VersionConstraint): LockedPackageInfo | null {
+export function readLockedPackageInfo(name: PackageName, vc: VersionConstraint): ResolvedPackageInfo | null {
   const packageInfo = currentLockFile[`${name}@${vc}`]
   if (packageInfo) {
     return {

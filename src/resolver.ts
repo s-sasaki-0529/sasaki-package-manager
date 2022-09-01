@@ -4,18 +4,19 @@ import { conflictLog, resolveByLockfile, resolveByManifestLog } from './logger.j
 import { fetchPackageManifest } from './npm.js'
 
 /**
- * パッケージの最新バージョンを返す
+ * 指定したパッケージの最新バージョンを返す
  */
-export async function resolvePackageLatestVersion(packageName: string) {
+export async function resolvePackageLatestVersion(packageName: string): Promise<Version> {
   const latestPackageInfo = await resolvePackage(packageName, '*')
   if (!latestPackageInfo) throw new Error(`Package not found: ${packageName}`)
   return latestPackageInfo.version
 }
 
 /**
- * npm リポジトリまたは Lock ファイルを用いて、パッケージのバージョンを解決する
+ * 指定したパッケージ及びバージョン制約から、最適なバージョンのパッケージ情報を返す
+ * 先に tiny-pm.lock.json から解決できるかを確認し、なければ npm manifest を取得して解決する
  */
-export async function resolvePackage(packageName: PackageName, vc: VersionConstraint) {
+export async function resolvePackage(packageName: PackageName, vc: VersionConstraint): Promise<ResolvedPackageInfo> {
   const lockedPackageInfo = readLockedPackageInfo(packageName, vc)
   if (lockedPackageInfo) {
     resolveByLockfile(packageName, vc, lockedPackageInfo.version)
@@ -39,28 +40,25 @@ export async function resolvePackage(packageName: PackageName, vc: VersionConstr
 
 /**
  * パッケージのバージョン解決を再帰的に行い、依存パッケージの依存パッケージまで深さ優先で解決していく
- * @argument topLevelList node_modules 直下にインストール可能なパッケージリスト
- * @argument conflictedList バージョン衝突のため、直下でなく各パッケージ以下の node_modules にインストールするパッケージリスト
- * @argument dependencyStack 現在解決中のパッケージに依存するパッケージ名のスタック
  */
 export async function collectDepsPackageList(
   name: PackageName,
   vc: VersionConstraint,
-  rootDependenciesMap: Readonly<DependenciesMap>,
-  topLevelList: DependenciesMap,
-  conflictedList: ConflictedPackageInfo[],
-  dependencyStack: PackageName[]
+  rootDependenciesMap: Readonly<DependenciesMap>, // ルートパッケージから直接依存するパッケージリスト
+  topLevelList: DependenciesMap, // node_modules 直下にインストールするパッケージリスト
+  conflictedList: ConflictedPackageInfo[], // node_modules 直下とバージョン衝突が起こったパッケージリスト
+  dependencyStack: PackageName[] // 現在解決中のパッケージに依存するパッケージ名のスタック
 ) {
   // 自身のパッケージ名を依存スタックに積み上げる
   dependencyStack.push(name)
 
-  // 解決後のパッケージ情報を取得する
+  // 自身のパッケージバージョンを解決する
   const packageInfo = await resolvePackage(name, vc)
 
   // 解決結果を Lock ファイルに書き出す
   addLockFile(name, vc, packageInfo.version)
 
-  // どこにインストールするかのヒント
+  // 解決したパッケージをどこに保存するかを後述のアルゴリズムに従って決定する
   const topLevelExists = !!topLevelList[name]
   const isCompatibleToTopLevel = topLevelExists && semver.satisfies(topLevelList[name], vc)
   const isRootDependency = dependencyStack.length === 1
@@ -96,7 +94,7 @@ export async function collectDepsPackageList(
     conflictedList.push({ name, version: packageInfo.version, parent: dependencyStack[dependencyStack.length - 2] })
   }
 
-  // 自身が依存するパッケージに対して再帰的に同様の操作を行う
+  // 自身が依存する各パッケージに対して再帰的に同様の操作を行う
   for (const [depName, depVersion] of Object.entries(packageInfo.dependencies)) {
     await collectDepsPackageList(
       depName,
@@ -108,6 +106,6 @@ export async function collectDepsPackageList(
     )
   }
 
-  // 自身の解決は全て完了したのでスタックから取り除く
+  // 自身及び自身が依存する全てのパッケージの解決が完了したのでスタックから取り除く
   dependencyStack.pop()
 }

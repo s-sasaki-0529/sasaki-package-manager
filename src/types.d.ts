@@ -26,7 +26,7 @@ type ConflictedPackageInfo = {
 }
 
 // 解決済みのパッケージ情報
-type LockedPackageInfo = {
+type ResolvedPackageInfo = {
   version: Version
   url: string
   shasum: string
@@ -35,7 +35,7 @@ type LockedPackageInfo = {
 
 // 解決済みパッケージ情報一覧(≒ tiny-pm.lock)
 type LockFile = {
-  [dependency: string]: LockedPackageInfo
+  [dependency: string]: ResolvedPackageInfo
 }
 
 // npm リポジトリから取得できるマニフェストの型(必要分のみ定義)
