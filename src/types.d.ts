@@ -18,6 +18,7 @@ type PackageDependencyMap = {
   devDependencies: DependenciesMap
 }
 
+// バージョンコンフリクトが起こったパッケージの情報
 type ConflictedPackageInfo = {
   name: PackageName
   version: Version
