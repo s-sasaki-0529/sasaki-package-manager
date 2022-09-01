@@ -26,7 +26,7 @@ export async function readLockFile() {
  * メモリ上の LockFile を tiny-pm.lock.json に書き込む
  */
 export async function writeLockFile() {
-  const lockFileJson = JSON.stringify(newLockFile, null, 2)
+  const lockFileJson = JSON.stringify(sortLockfile(newLockFile), null, 2)
   return writeFile(LOCK_FILE_PATH, lockFileJson, 'utf8')
 }
 
@@ -61,4 +61,15 @@ export function readLockedPackageInfo(name: PackageName, vc: VersionConstraint):
   } else {
     return null
   }
+}
+
+/**
+ * メモリ上の LockFile をキー昇順でソートしたものを返す
+ */
+function sortLockfile(lockFile: LockFile): LockFile {
+  const sortedLockFile: LockFile = {}
+  for (const key of Object.keys(lockFile).sort()) {
+    sortedLockFile[key] = lockFile[key]
+  }
+  return sortedLockFile
 }

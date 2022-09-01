@@ -34,7 +34,7 @@ type LockedPackageInfo = {
 
 // 解決済みパッケージ情報一覧(≒ tiny-pm.lock)
 type LockFile = {
-  [dependency: `${PackageName}@${VersionConstraint}`]: LockedPackageInfo
+  [dependency: string]: LockedPackageInfo
 }
 
 // npm リポジトリから取得できるマニフェストの型(必要分のみ定義)
