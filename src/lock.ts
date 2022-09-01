@@ -1,18 +1,38 @@
 import { readFile, writeFile } from 'fs/promises'
 import { fetchPackageManifest } from './manifest.js'
 
-const LOCK_FILE_PATH = `${process.cwd()}/tiny-pm.lock`
+const LOCK_FILE_PATH = `${process.cwd()}/tiny-pm.lock.json`
 
-/**
- * 現在の lock ファイルの内容で読み取り用
- */
+// 現在の lock ファイルの内容で読み取り用
 const currentLockFile: LockFile = {}
 
-/**
- * 更新用の lock ファイルの内容で書き込み用
- */
+// 更新用の lock ファイルの内容で書き込み用
 const newLockFile: LockFile = {}
 
+/**
+ * tiny-pm.lock.json を読み込み、メモリに展開する
+ */
+export async function readLockFile() {
+  const buffer = await readFile(LOCK_FILE_PATH, 'utf8').catch(e => {
+    if (e.code === 'ENOENT') return '{}'
+    throw e
+  })
+  const lockFile = JSON.parse(buffer) as LockFile
+  Object.assign(currentLockFile, lockFile)
+  return currentLockFile
+}
+
+/**
+ * メモリ上の LockFile を tiny-pm.lock.json に書き込む
+ */
+export async function writeLockFile() {
+  const lockFileJson = JSON.stringify(newLockFile, null, 2)
+  return writeFile(LOCK_FILE_PATH, lockFileJson, 'utf8')
+}
+
+/**
+ * メモリ上の LockFile にパッケージを追加する
+ */
 export async function addLockFile(packageName: PackageName, vc: VersionConstraint, version: Version) {
   const manifest = await fetchPackageManifest(packageName)
   const info = manifest.versions[version]
@@ -26,6 +46,9 @@ export async function addLockFile(packageName: PackageName, vc: VersionConstrain
   return packageInfo
 }
 
+/**
+ * メモリ上の LockFile からパッケージ情報を取得する
+ */
 export function readLockedPackageInfo(name: PackageName, vc: VersionConstraint): LockedPackageInfo | null {
   const packageInfo = currentLockFile[`${name}@${vc}`]
   if (packageInfo) {
@@ -38,19 +61,4 @@ export function readLockedPackageInfo(name: PackageName, vc: VersionConstraint):
   } else {
     return null
   }
-}
-
-export async function readLockFile() {
-  const buffer = await readFile(LOCK_FILE_PATH, 'utf8').catch(e => {
-    if (e.code === 'ENOENT') return '{}'
-    throw e
-  })
-  const lockFile = JSON.parse(buffer) as LockFile
-  Object.assign(currentLockFile, lockFile)
-  return currentLockFile
-}
-
-export async function writeLockFile() {
-  const lockFileJson = JSON.stringify(newLockFile, null, 2)
-  return writeFile(LOCK_FILE_PATH, lockFileJson, 'utf8')
 }
