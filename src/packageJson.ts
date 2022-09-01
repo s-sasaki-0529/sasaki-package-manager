@@ -14,13 +14,12 @@ export async function findPackageJsonPath() {
  * package.json を parse し、依存関係オブジェクトを返す
  */
 export async function parsePackageJson(path: string): Promise<PackageDependencyMap> {
-  return readFile(path).then(data => {
-    const json = JSON.parse(data.toString())
-    return Promise.resolve({
-      dependencies: json.dependencies || {},
-      devDependencies: json.devDependencies || {}
-    })
-  })
+  const data = await readFile(path, 'utf-8')
+  const json = JSON.parse(data.toString())
+  return {
+    dependencies: json.dependencies || {},
+    devDependencies: json.devDependencies || {}
+  }
 }
 
 /**
