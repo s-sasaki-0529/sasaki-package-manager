@@ -8,6 +8,9 @@ type InstallOption = {
   production?: boolean
 }
 
+/**
+ * Usage: tiny-pm install [packageNames...] [options]
+ */
 export default async function install(packageNames: PackageName[], option: InstallOption = {}) {
   // インストール対象パッケージ一覧を初期化
   const dependencyMap: PackageDependencyMap = {
@@ -15,19 +18,20 @@ export default async function install(packageNames: PackageName[], option: Insta
     devDependencies: {}
   }
 
-  // package.json のパスを確定する
+  // カレントディレクトリから上位に向かって最寄りの package.json を探索する
   const packageJsonPath = await findPackageJsonPath()
 
-  // package.json の内容から依存関係を取得する
+  // 発見した package.json の内容から依存関係を取得する
   const packageJson = await parsePackageJson(packageJsonPath)
   dependencyMap.dependencies = packageJson.dependencies
   dependencyMap.devDependencies = packageJson.devDependencies
 
-  // lock ファイルも読み込んでおく
+  // 依存解決前に tiny-pm.lock.json を読み込んでおく
   await readLockFile()
 
-  // 追加インストールするパッケージを dependencies または devDependencies に追加する
+  // コマンドラインオプションで指定された、追加インストールするパッケージを追加する
   // バージョン指定がない場合は、最新バージョンを確認してそれを使用する
+  // saveDev オプションが付与されているばあいは devDependencies のほうに追加する
   for (const packageName of packageNames) {
     const hasConstraint = packageName.includes('@')
     const name = hasConstraint ? packageName.split('@')[0] : packageName
@@ -40,13 +44,12 @@ export default async function install(packageNames: PackageName[], option: Insta
     }
   }
 
-  // production only の場合はここで devDependencies を空にすることでインストールをスキップする
+  // production オプションが付与されているばあいは、devDependencies はインストール対象外なので削除しておく
   if (option.production) {
     dependencyMap.devDependencies = {}
   }
 
-  // パッケージ一覧それぞれが依存する下位パッケージのバージョンも洗い出して、
-  // 最終的なパッケージ一覧を生成する
+  // 各パッケージの依存関係を解決し、最終的にインストールするパッケージ一覧及び保存ディレクトリを決定する
   const rootDependenciesMap: DependenciesMap = { ...dependencyMap.dependencies, ...dependencyMap.devDependencies }
   const topLevelPackageList: DependenciesMap = {}
   const conflictedPackageList: ConflictedPackageInfo[] = []
@@ -54,19 +57,17 @@ export default async function install(packageNames: PackageName[], option: Insta
     await collectDepsPackageList(name, constraint, rootDependenciesMap, topLevelPackageList, conflictedPackageList, [])
   }
 
-  // node_modules 直下へのインストール
+  // node_modules 直下にインストールするパッケージから先にインストール
   for (const name of Object.keys(topLevelPackageList)) {
     await savePackageTarball(name, topLevelPackageList[name], `node_modules/${name}`)
   }
 
-  // 依存パッケージ以下へのインストール
+  // node_modules 直下とはバージョンコンフリクトが起こった下位パッケージは、各パッケージディレクトリ以下にインストール
   for (const { name, version, parent } of conflictedPackageList) {
     await savePackageTarball(name, version, `node_modules/${parent}/node_modules/${name}`)
   }
 
-  // package.json を書き出す
+  // 最終的な依存関係を package.json 及び tiny-pm.lock.json に書き出して完了
   await writePackageJson(packageJsonPath, dependencyMap)
-
-  // lock ファイルを書き出す
   await writeLockFile()
 }
