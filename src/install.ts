@@ -1,14 +1,14 @@
 import { readLockFile, writeLockFile } from './lock.js'
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
-import { collectDepsPackageList, resolvePackage, resolvePackageLatestVersion } from './resolver.js'
+import { collectDepsPackageList, resolvePackageLatestVersion } from './resolver.js'
 
 type InstallOption = {
   saveDev?: boolean
   production?: boolean
 }
 
-export async function install(packageNames: PackageName[], option: InstallOption = {}) {
+export default async function install(packageNames: PackageName[], option: InstallOption = {}) {
   // インストール対象パッケージ一覧を初期化
   const dependencyMap: PackageDependencyMap = {
     dependencies: {},

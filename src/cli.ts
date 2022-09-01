@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { install } from './tinyPm.js'
+import install from './install.js'
 
 const program = new Command()
 
