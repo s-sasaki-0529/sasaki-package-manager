@@ -3,7 +3,10 @@ import { addLockFile, readLockedPackageInfo } from './lock.js'
 import { resolveByLockfile, resolveByManifestLog } from './logger.js'
 import { fetchPackageManifest } from './manifest.js'
 
-async function resolvePackage(packageName: PackageName, vc: VersionConstraint): Promise<LockedPackageInfo | null> {
+export async function resolvePackage(
+  packageName: PackageName,
+  vc: VersionConstraint
+): Promise<LockedPackageInfo | null> {
   // Lock ファイルに既に情報があればそれを利用する
   const lockedPackageInfo = readLockedPackageInfo(packageName, vc)
   if (lockedPackageInfo) {
@@ -12,7 +15,6 @@ async function resolvePackage(packageName: PackageName, vc: VersionConstraint): 
   }
 
   // Lock ファイルに情報がなければ、パッケージマニフェストから取得する
-  // TODO: ここで Lock ファイルの更新も必要？
   const manifest = await fetchPackageManifest(packageName)
   const version = semver.maxSatisfying(Object.keys(manifest.versions), vc)
   if (!manifest.versions[version]) return null
