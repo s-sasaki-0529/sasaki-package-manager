@@ -14,7 +14,7 @@ export async function resolvePackageLatestVersion(packageName: string): Promise<
 
 /**
  * 指定したパッケージ及びバージョン制約から、最適なバージョンのパッケージ情報を返す
- * 先に tiny-pm.lock.json から解決できるかを確認し、なければ npm manifest を取得して解決する
+ * 先に sasaki-pm.lock.json から解決できるかを確認し、なければ npm manifest を取得して解決する
  */
 export async function resolvePackage(packageName: PackageName, vc: VersionConstraint): Promise<ResolvedPackageInfo> {
   const lockedPackageInfo = readLockedPackageInfo(packageName, vc)

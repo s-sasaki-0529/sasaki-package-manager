@@ -1,5 +1,5 @@
 {
-  "name": "@s-sasaki-0529/tiny-package-manager",
+  "name": "sasaki-package-manager",
   "version": "0.0.1",
   "description": "The tiny package manager for learning",
   "author": "shingo.sasaki <shingo.sasaki.0529@gmail.com> (https://www.shingo-sasaki.net/)",
@@ -9,10 +9,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/s-sasaki-0529/tiny-package-manager.git"
+    "url": "git+https://github.com/s-sasaki-0529/sasaki-package-manager.git"
   },
   "bin": {
-    "tiny-pm": "./dist/cli.js"
+    "sasaki-pm": "./dist/cli.js"
   },
   "scripts": {
     "dev": "tsc --watch",

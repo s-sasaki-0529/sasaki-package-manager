@@ -9,7 +9,7 @@ type InstallOption = {
 }
 
 /**
- * Usage: tiny-pm install [packageNames...] [options]
+ * Usage: sasaki-pm install [packageNames...] [options]
  */
 export default async function install(packageNames: PackageName[], option: InstallOption = {}) {
   // インストール対象パッケージ一覧を初期化
@@ -26,7 +26,7 @@ export default async function install(packageNames: PackageName[], option: Insta
   dependencyMap.dependencies = packageJson.dependencies
   dependencyMap.devDependencies = packageJson.devDependencies
 
-  // 依存解決前に tiny-pm.lock.json を読み込んでおく
+  // 依存解決前に sasaki-pm.lock.json を読み込んでおく
   await readLockFile()
 
   // コマンドラインオプションで指定された、追加インストールするパッケージを追加する
@@ -67,7 +67,7 @@ export default async function install(packageNames: PackageName[], option: Insta
     await savePackageTarball(name, version, `node_modules/${parent}/node_modules/${name}`)
   }
 
-  // 最終的な依存関係を package.json 及び tiny-pm.lock.json に書き出して完了
+  // 最終的な依存関係を package.json 及び sasaki-pm.lock.json に書き出して完了
   await writePackageJson(packageJsonPath, dependencyMap)
   await writeLockFile()
 }

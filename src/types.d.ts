@@ -33,7 +33,7 @@ type ResolvedPackageInfo = {
   dependencies: DependenciesMap
 }
 
-// 解決済みパッケージ情報一覧(≒ tiny-pm.lock)
+// 解決済みパッケージ情報一覧(≒ sasaki-pm.lock.json)
 type LockFile = {
   [dependency: string]: ResolvedPackageInfo
 }

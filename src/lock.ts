@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
 import { fetchPackageManifest } from './npm.js'
 
-const LOCK_FILE_PATH = `${process.cwd()}/tiny-pm.lock.json`
+const LOCK_FILE_PATH = `${process.cwd()}/sasaki-pm.lock.json`
 
 // 現在の lock ファイルの内容で読み取り用
 const currentLockFile: LockFile = {}
@@ -10,7 +10,7 @@ const currentLockFile: LockFile = {}
 const newLockFile: LockFile = {}
 
 /**
- * tiny-pm.lock.json を読み込み、メモリに展開する
+ * sasaki-pm.lock.json を読み込み、メモリに展開する
  */
 export async function readLockFile() {
   const buffer = await readFile(LOCK_FILE_PATH, 'utf8').catch(e => {
@@ -23,7 +23,7 @@ export async function readLockFile() {
 }
 
 /**
- * メモリ上の LockFile を tiny-pm.lock.json に書き込む
+ * メモリ上の LockFile を sasaki-pm.lock.json に書き込む
  */
 export async function writeLockFile() {
   const lockFileJson = JSON.stringify(sortLockfile(newLockFile), null, 2)
