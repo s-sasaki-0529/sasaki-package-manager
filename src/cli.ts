@@ -1,3 +1,8 @@
+/**
+ * パッケージマネージャのCLI
+ * 現状は install コマンドのみを提供する
+ */
+
 import { Command } from 'commander'
 import install from './install.js'
 
@@ -16,6 +21,6 @@ program
   })
 
 program
-  .option('--production', 'devDependencies のインストールを省略する')
-  .option('--save-dev', 'パッケージを devDependencies に追加する')
+  .option('--production', 'install only dependencies (not devDependencies)')
+  .option('--save-dev', 'Package will appear in your devDependencies')
   .parse()
