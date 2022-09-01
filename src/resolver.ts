@@ -3,6 +3,15 @@ import { addLockFile, readLockedPackageInfo } from './lock.js'
 import { resolveByLockfile, resolveByManifestLog } from './logger.js'
 import { fetchPackageManifest } from './manifest.js'
 
+/**
+ * パッケージの最新バージョンを返す
+ */
+export async function resolvePackageLatestVersion(packageName: string) {
+  const latestPackageInfo = await resolvePackage(packageName, '*')
+  if (!latestPackageInfo) throw new Error(`Package not found: ${packageName}`)
+  return latestPackageInfo.version
+}
+
 export async function resolvePackage(
   packageName: PackageName,
   vc: VersionConstraint

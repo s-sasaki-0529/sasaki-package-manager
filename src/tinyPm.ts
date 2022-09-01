@@ -1,7 +1,7 @@
 import { readLockFile, writeLockFile } from './lock.js'
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
-import { collectDepsPackageList, resolvePackage } from './resolver.js'
+import { collectDepsPackageList, resolvePackage, resolvePackageLatestVersion } from './resolver.js'
 
 type InstallOption = {
   saveDev?: boolean
@@ -28,16 +28,15 @@ export async function install(packageNames: PackageName[], option: InstallOption
 
   // 追加インストールするパッケージを dependencies または devDependencies に追加する
   // バージョン指定がない場合は、最新バージョンを確認してそれを使用する
-  // TODO: バージョン指定がある場合の対応
   for (const packageName of packageNames) {
-    const latestPackageInfo = await resolvePackage(packageName, '*')
-    const latestVersion = latestPackageInfo?.version
-    if (!latestVersion) throw new Error(`Package not found: ${packageName}`)
+    const hasConstraint = packageName.includes('@')
+    const name = hasConstraint ? packageName.split('@')[0] : packageName
+    const constraint = hasConstraint ? packageName.split('@')[1] : `^${await resolvePackageLatestVersion(name)}`
 
     if (option.saveDev) {
-      dependencyMap.devDependencies[packageName] = `^${latestVersion}`
+      dependencyMap.devDependencies[name] = constraint
     } else {
-      dependencyMap.dependencies[packageName] = `^${latestVersion}`
+      dependencyMap.dependencies[name] = constraint
     }
   }
 
