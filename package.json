@@ -1,7 +1,24 @@
 {
-  "name": "@s-sasaki-0529/tiny-package-manager",
+  "name": "tiny-pm",
   "version": "0.0.1",
+  "description": "The tiny package manager for learning",
+  "author": "shingo.sasaki <shingo.sasaki.0529@gmail.com> (https://www.shingo-sasaki.net/)",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-sasaki-0529/tiny-package-manager.git"
+  },
+  "bin": {
+    "tiny-pm": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "lint": "eslint . --ext=.ts"
+  },
   "devDependencies": {
     "@types/node": "^18.7.13",
     "@types/semver": "^5.5.0",
