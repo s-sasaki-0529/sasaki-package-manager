@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'fs/promises'
-import { fetchPackageManifest } from './manifest.js'
+import { fetchPackageManifest } from './npm.js'
 
 const LOCK_FILE_PATH = `${process.cwd()}/tiny-pm.lock.json`
 

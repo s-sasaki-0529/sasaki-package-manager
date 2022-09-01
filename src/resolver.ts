@@ -1,7 +1,7 @@
 import * as semver from 'semver'
 import { addLockFile, readLockedPackageInfo } from './lock.js'
 import { conflictLog, resolveByLockfile, resolveByManifestLog } from './logger.js'
-import { fetchPackageManifest } from './manifest.js'
+import { fetchPackageManifest } from './npm.js'
 
 /**
  * パッケージの最新バージョンを返す
