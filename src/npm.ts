@@ -25,7 +25,7 @@ export async function fetchPackageManifest(name: PackageName): Promise<NpmManife
 /**
  * パッケージの指定バージョンをダウンロードし、tar を解答して指定パスに展開する
  */
-export async function savePackageTarball(name: PackageName, version: Version, path: string) {
+export async function installPackage(name: PackageName, version: Version, path: string) {
   const fullPath = `${process.cwd()}/${path}`
   const manifest = await fetchPackageManifest(name)
 

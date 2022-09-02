@@ -1,5 +1,5 @@
 import { readLockFile, writeLockFile } from './lockJson.js'
-import { savePackageTarball } from './npm.js'
+import { installPackage } from './npm.js'
 import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
 import { collectDepsPackageList, resolvePackageLatestVersion } from './resolver.js'
 
@@ -59,12 +59,12 @@ export default async function install(packageNames: PackageName[], option: Insta
 
   // node_modules 直下にインストールするパッケージから先にインストール
   for (const name of Object.keys(topLevelPackageList)) {
-    await savePackageTarball(name, topLevelPackageList[name], `node_modules/${name}`)
+    await installPackage(name, topLevelPackageList[name], `node_modules/${name}`)
   }
 
   // node_modules 直下とはバージョンコンフリクトが起こった下位パッケージは、各パッケージディレクトリ以下にインストール
   for (const { name, version, parent } of conflictedPackageList) {
-    await savePackageTarball(name, version, `node_modules/${parent}/node_modules/${name}`)
+    await installPackage(name, version, `node_modules/${parent}/node_modules/${name}`)
   }
 
   // 最終的な依存関係を package.json 及び sasaki-pm.lock.json に書き出して完了
