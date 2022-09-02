@@ -1,4 +1,4 @@
-import { readLockFile, writeLockFile } from './lock.js'
+import { readLockFile, writeLockFile } from './lockJson.js'
 import { savePackageTarball } from './npm.js'
 import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
 import { collectDepsPackageList, resolvePackageLatestVersion } from './resolver.js'

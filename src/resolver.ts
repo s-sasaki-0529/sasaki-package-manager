@@ -1,5 +1,5 @@
 import * as semver from 'semver'
-import { addLockFile, readLockedPackageInfo } from './lock.js'
+import { addLockFile, readLockedPackageInfo } from './lockJson.js'
 import { conflictLog, resolveByLockfile, resolveByManifestLog } from './logger.js'
 import { fetchPackageManifest } from './npm.js'
 
