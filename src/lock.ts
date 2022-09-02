@@ -1,5 +1,4 @@
 import { readFile, writeFile } from 'fs/promises'
-import { fetchPackageManifest } from './npm.js'
 
 const LOCK_FILE_PATH = `${process.cwd()}/sasaki-pm.lock.json`
 
@@ -33,17 +32,9 @@ export async function writeLockFile() {
 /**
  * メモリ上の LockFile にパッケージを追加する
  */
-export async function addLockFile(packageName: PackageName, vc: VersionConstraint, version: Version) {
-  const manifest = await fetchPackageManifest(packageName)
-  const info = manifest.versions[version]
-  const packageInfo: ResolvedPackageInfo = {
-    version,
-    url: info.dist.tarball,
-    shasum: info.dist.shasum,
-    dependencies: info.dependencies || {}
-  }
-  newLockFile[`${packageName}@${vc}`] = packageInfo
-  return packageInfo
+export async function addLockFile(name: PackageName, vc: VersionConstraint, info: ResolvedPackageInfo) {
+  newLockFile[`${name}@${vc}`] = info
+  return info
 }
 
 /**

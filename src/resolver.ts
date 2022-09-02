@@ -56,7 +56,7 @@ export async function collectDepsPackageList(
   const packageInfo = await resolvePackage(name, vc)
 
   // 解決結果を Lock ファイルに書き出す
-  addLockFile(name, vc, packageInfo.version)
+  addLockFile(name, vc, packageInfo)
 
   // 解決したパッケージをどこに保存するかを後述のアルゴリズムに従って決定する
   const topLevelExists = !!topLevelList[name]
