@@ -1,6 +1,6 @@
 import { readLockFile, writeLockFile } from './lockJson.js'
 import { installPackage } from './npm.js'
-import { findPackageJsonPath, parsePackageJson, writePackageJson } from './packageJson.js'
+import { parsePackageJson, writePackageJson } from './packageJson.js'
 import { collectDepsPackageList, resolvePackageLatestVersion } from './resolver.js'
 
 type InstallOption = {
@@ -18,11 +18,8 @@ export default async function install(packageNames: PackageName[], option: Insta
     devDependencies: {}
   }
 
-  // カレントディレクトリから上位に向かって最寄りの package.json を探索する
-  const packageJsonPath = await findPackageJsonPath()
-
-  // 発見した package.json の内容から依存関係を取得する
-  const packageJson = await parsePackageJson(packageJsonPath)
+  // カレントディレクトリにある package.json の内容から依存関係を取得する
+  const packageJson = await parsePackageJson()
   dependencyMap.dependencies = packageJson.dependencies
   dependencyMap.devDependencies = packageJson.devDependencies
 
@@ -68,6 +65,6 @@ export default async function install(packageNames: PackageName[], option: Insta
   }
 
   // 最終的な依存関係を package.json 及び sasaki-pm.lock.json に書き出して完了
-  await writePackageJson(packageJsonPath, dependencyMap)
+  await writePackageJson(dependencyMap)
   await writeLockFile()
 }
