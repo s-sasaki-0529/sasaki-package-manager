@@ -38,7 +38,7 @@ type LockFile = {
   [dependency: string]: ResolvedPackageInfo
 }
 
-// npm リポジトリから取得できるマニフェストの型(必要分のみ定義)
+// npm レジストリから取得できるマニフェストの型(必要分のみ定義)
 // e.g. https://registry.npmjs.org/axios
 type NpmManifest = {
   name: PackageName

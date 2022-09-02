@@ -3,8 +3,8 @@ import fetch from 'node-fetch'
 import * as tar from 'tar'
 import { installLog } from './logger.js'
 
-// npm リポジトリURL
-const REPOSITORY_URL = 'https://registry.npmjs.org'
+// npm レジストリURL
+const REGISTRY_URL = 'https://registry.npmjs.org'
 
 // 取得済みの npm マニフェストをメモリにキャッシュするためのマップ
 const MANIFEST_CACHE: Record<PackageName, NpmManifest> = {}
@@ -15,7 +15,7 @@ const MANIFEST_CACHE: Record<PackageName, NpmManifest> = {}
  */
 export async function fetchPackageManifest(name: PackageName): Promise<NpmManifest> {
   if (!MANIFEST_CACHE[name]) {
-    const manifestUrl = `${REPOSITORY_URL}/${name}`
+    const manifestUrl = `${REGISTRY_URL}/${name}`
     const manifest = (await fetch(manifestUrl).then(res => res.json())) as NpmManifest
     MANIFEST_CACHE[name] = manifest
   }
