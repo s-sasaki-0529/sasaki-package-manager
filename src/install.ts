@@ -12,16 +12,8 @@ type InstallOption = {
  * Usage: sasaki-pm install [packageNames...] [options]
  */
 export default async function install(packageNames: PackageName[], option: InstallOption = {}) {
-  // インストール対象パッケージ一覧を初期化
-  const dependencyMap: PackageDependencyMap = {
-    dependencies: {},
-    devDependencies: {}
-  }
-
   // カレントディレクトリにある package.json の内容から依存関係を取得する
   const packageJson = await parsePackageJson()
-  dependencyMap.dependencies = packageJson.dependencies
-  dependencyMap.devDependencies = packageJson.devDependencies
 
   // 依存解決前に sasaki-pm.lock.json を読み込んでおく
   await readLockFile()
@@ -35,23 +27,24 @@ export default async function install(packageNames: PackageName[], option: Insta
     const constraint = hasConstraint ? packageName.split('@')[1] : `^${await resolvePackageLatestVersion(name)}`
 
     if (option.saveDev) {
-      dependencyMap.devDependencies[name] = constraint
+      packageJson.devDependencies[name] = constraint
     } else {
-      dependencyMap.dependencies[name] = constraint
+      packageJson.dependencies[name] = constraint
     }
   }
 
-  // production オプションが付与されているばあいは、devDependencies はインストール対象外なので削除しておく
-  if (option.production) {
-    dependencyMap.devDependencies = {}
+  // dependencies と devDependenciesをマージして、最終的なパッケージリストを生成する
+  // ただし、devDependencies は --production オプションが指定されていない場合に限る
+  const dependenciesMap: DependenciesMap = { ...packageJson.dependencies }
+  if (!option.production) {
+    Object.assign(dependenciesMap, packageJson.devDependencies)
   }
 
   // 各パッケージの依存関係を解決し、最終的にインストールするパッケージ一覧及び保存ディレクトリを決定する
-  const rootDependenciesMap: DependenciesMap = { ...dependencyMap.dependencies, ...dependencyMap.devDependencies }
   const topLevelPackageList: DependenciesMap = {}
   const conflictedPackageList: ConflictedPackageInfo[] = []
-  for (const [name, constraint] of Object.entries(rootDependenciesMap)) {
-    await collectDepsPackageList(name, constraint, rootDependenciesMap, topLevelPackageList, conflictedPackageList, [])
+  for (const [name, constraint] of Object.entries(dependenciesMap)) {
+    await collectDepsPackageList(name, constraint, dependenciesMap, topLevelPackageList, conflictedPackageList, [])
   }
 
   // node_modules 直下にインストールするパッケージから先にインストール
@@ -65,6 +58,6 @@ export default async function install(packageNames: PackageName[], option: Insta
   }
 
   // 最終的な依存関係を package.json 及び sasaki-pm.lock.json に書き出して完了
-  await writePackageJson(dependencyMap)
+  await writePackageJson(packageJson)
   await writeLockFile()
 }
