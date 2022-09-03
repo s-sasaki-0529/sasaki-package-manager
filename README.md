@@ -1,5 +1,27 @@
 # sasaki-package-manager
 
-[g-plane/tiny-package-manager](https://github.com/g-plane/tiny-package-manager) リスペクトで、これを参考にしながら自前で npm っぽいパッケージマネージャを作ってみるお遊びリポジトリ。
+A very very simple demo and guide for explaining package manager.
 
-そのうち記事化する。
+This repository was inspired by [g-plane/tiny-package-manager](https://github.com/g-plane/tiny-package-manager)
+
+## install
+
+```bash
+$ npm install -g sasaki-package-manager
+```
+
+## Usage
+
+```
+$ sasaki-pm
+Usage: sasaki-pm [options] [command]
+
+Options:
+  --production               install only dependencies (not devDependencies)
+  --save-dev                 Package will appear in your devDependencies
+  -h, --help                 display help for command
+
+Commands:
+  install [packageNames...]
+  help [command]             display help for command
+```
